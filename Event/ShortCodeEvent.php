@@ -1,8 +1,6 @@
 <?php
 
-
 namespace ShortCode\Event;
-
 
 use Thelia\Core\Event\ActionEvent;
 
