@@ -1,0 +1,12 @@
+{
+  "name": "thelia/short-code-module",
+  "license": "LGPL-3.0+",
+  "type": "thelia-module",
+  "require": {
+    "thelia/installer": "~1.1",
+    "maiorano84/shortcodes": "v2.0.0-beta"
+  },
+  "extra": {
+    "installer-name": "ShortCode"
+  }
+}
