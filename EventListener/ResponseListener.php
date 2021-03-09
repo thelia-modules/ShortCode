@@ -12,8 +12,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Thelia\Log\Tlog;
 
 class ResponseListener implements EventSubscriberInterface
 {
@@ -36,7 +37,7 @@ class ResponseListener implements EventSubscriberInterface
         ];
     }
 
-    public function dispatchShortCodeEvents(FilterResponseEvent $event)
+    public function dispatchShortCodeEvents(ResponseEvent $event)
     {
         $response = $event->getResponse();
 
@@ -52,19 +53,25 @@ class ResponseListener implements EventSubscriberInterface
             ->filterByActive(1)
             ->find();
 
-
         /** @var ShortCode $shortCode */
         foreach ($shortCodes as $shortCode) {
             $simpleShortCodes[$shortCode->getTag()] = new SimpleShortcode($shortCode->getTag(), null, function ($content, $attributes) use ($shortCode, $dispatcher) {
                 $shortCodeEvent = new ShortCodeEvent($content, $attributes);
-                $dispatcher->dispatch($shortCode->getEvent(), $shortCodeEvent);
+                $dispatcher->dispatch($shortCodeEvent, $shortCode->getEvent());
                 return $shortCodeEvent->getResult();
             });
         }
 
         $manager = new ShortcodeManager($simpleShortCodes);
 
-        $results = $manager->doShortCode($response->getContent(), null, true);
-        $response->setContent($results);
+        $content = $response->getContent();
+
+        try {
+            $content = $manager->doShortCode($content, null, true);
+        } catch (\Exception $exception) {
+            Tlog::getInstance()->error($exception->getMessage());
+        }
+
+        $response->setContent($content);
     }
 }

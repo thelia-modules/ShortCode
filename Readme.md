@@ -16,7 +16,7 @@ This module scan the Thelia response at the research of registred short code (in
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/short-code-module:~1.0
+composer require thelia/shortcode-module:~1.0
 ```
 
 ## Usage
