@@ -29,7 +29,7 @@
 
     <table name="short_code" namespace="ShortCode\Model">
         <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
-        <column name="tag" size="255" type="VARCHAR" required="true" unique="true"/>
+        <column name="tag" size="55" type="VARCHAR" required="true" unique="true"/>
         <column name="event" size="255" type="VARCHAR" required="true"/>
         <column name="active" type="TINYINT" />
         <behavior name="timestampable" />
