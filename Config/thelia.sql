@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS `short_code`;
 CREATE TABLE `short_code`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `tag` VARCHAR(255) NOT NULL,
+    `tag` VARCHAR(55) NOT NULL,
     `event` VARCHAR(255) NOT NULL,
     `active` TINYINT,
     `created_at` DATETIME,
