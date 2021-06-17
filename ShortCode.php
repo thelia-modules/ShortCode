@@ -28,7 +28,7 @@ class ShortCode extends BaseModule
         if (!$this->getConfigValue('is_initialized', false)) {
             $database = new Database($con);
 
-            $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
+            $database->insertSql(null, array(__DIR__ . '/Config/TheliaMain.sql'));
 
             $this->setConfigValue('is_initialized', true);
         }
