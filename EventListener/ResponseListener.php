@@ -39,6 +39,10 @@ class ResponseListener implements EventSubscriberInterface
 
     public function dispatchShortCodeEvents(ResponseEvent $event)
     {
+        if ($event->getRequest()->get('disable_shortcode', 0) == 1) {
+            return;
+        }
+        
         $response = $event->getResponse();
 
         if ($response instanceof BinaryFileResponse || $response instanceof StreamedResponse || $response instanceof RedirectResponse) {
