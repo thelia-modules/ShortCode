@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ShortCode\EventListener;
 
 use Maiorano\Shortcodes\Library\SimpleShortcode;
@@ -10,6 +20,7 @@ use ShortCode\Model\ShortCodeQuery;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -21,9 +32,6 @@ class ResponseListener implements EventSubscriberInterface
     /** @var EventDispatcherInterface */
     protected $eventDispatcher;
 
-    /**
-     * @param EventDispatcherInterface $eventDispatcher
-     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher
     ) {
@@ -33,19 +41,24 @@ class ResponseListener implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::RESPONSE => [['dispatchShortCodeEvents', 64]]
+            KernelEvents::RESPONSE => [['dispatchShortCodeEvents', 64]],
         ];
     }
 
-    public function dispatchShortCodeEvents(ResponseEvent $event)
+    public function dispatchShortCodeEvents(ResponseEvent $event): void
     {
         if ($event->getRequest()->get('disable_shortcode', 0) == 1) {
             return;
         }
-        
+
         $response = $event->getResponse();
 
-        if ($response instanceof BinaryFileResponse || $response instanceof StreamedResponse || $response instanceof RedirectResponse) {
+        if (
+            $response instanceof BinaryFileResponse
+            || $response instanceof StreamedResponse
+            || $response instanceof RedirectResponse
+            || $response instanceof JsonResponse
+        ) {
             return;
         }
 
@@ -62,6 +75,7 @@ class ResponseListener implements EventSubscriberInterface
             $simpleShortCodes[$shortCode->getTag()] = new SimpleShortcode($shortCode->getTag(), null, function ($content, $attributes) use ($shortCode, $dispatcher) {
                 $shortCodeEvent = new ShortCodeEvent($content, $attributes);
                 $dispatcher->dispatch($shortCodeEvent, $shortCode->getEvent());
+
                 return $shortCodeEvent->getResult();
             });
         }
