@@ -15,7 +15,7 @@ namespace ShortCode;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
 use ShortCode\Model\ShortCodeQuery;
-use Thelia\Install\Database;
+use Thelia\Core\Install\Database;
 use Thelia\Module\BaseModule;
 
 class ShortCode extends BaseModule
