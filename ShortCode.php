@@ -23,7 +23,7 @@ class ShortCode extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'shortcode';
 
-    public function preActivation(ConnectionInterface $con = null): bool
+    public function preActivation(?ConnectionInterface $con = null): bool
     {
         if (!$this->getConfigValue('is_initialized', false)) {
             $database = new Database($con);
