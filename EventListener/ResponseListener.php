@@ -12,11 +12,10 @@
 
 namespace ShortCode\EventListener;
 
-use Maiorano\Shortcodes\Library\SimpleShortcode;
-use Maiorano\Shortcodes\Manager\ShortcodeManager;
 use ShortCode\Event\ShortCodeEvent;
 use ShortCode\Model\ShortCode;
 use ShortCode\Model\ShortCodeQuery;
+use ShortCode\Parser\ShortcodeRenderer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -69,7 +68,7 @@ class ResponseListener implements EventSubscriberInterface
 
         $dispatcher = $this->eventDispatcher;
 
-        $simpleShortCodes = [];
+        $renderer = new ShortcodeRenderer();
 
         $shortCodes = ShortCodeQuery::create()
             ->filterByActive(1)
@@ -77,7 +76,7 @@ class ResponseListener implements EventSubscriberInterface
 
         /** @var ShortCode $shortCode */
         foreach ($shortCodes as $shortCode) {
-            $simpleShortCodes[$shortCode->getTag()] = new SimpleShortcode($shortCode->getTag(), null, function ($content, $attributes) use ($shortCode, $dispatcher) {
+            $renderer->register($shortCode->getTag(), function ($content, $attributes) use ($shortCode, $dispatcher) {
                 $shortCodeEvent = new ShortCodeEvent($content, $attributes);
                 $dispatcher->dispatch($shortCodeEvent, $shortCode->getEvent());
 
@@ -85,12 +84,10 @@ class ResponseListener implements EventSubscriberInterface
             });
         }
 
-        $manager = new ShortcodeManager($simpleShortCodes);
-
         $content = $response->getContent();
 
         try {
-            $content = $manager->doShortCode($content, null, true);
+            $content = $renderer->render((string) $content, true);
         } catch (\Exception $exception) {
             Tlog::getInstance()->error($exception->getMessage());
         }

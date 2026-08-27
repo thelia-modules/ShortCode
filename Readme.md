@@ -1,6 +1,6 @@
 # ShortCode
 
-Implementation of Wordpress' Shortcode syntax in Thelia (with https://github.com/maiorano84/shortcodes).  
+Implementation of Wordpress' Shortcode syntax in Thelia.  
 This module scan the Thelia response at the research of registred short code (in DB),
  if a short code is find the module dispatch the associated event. 
 
@@ -43,3 +43,19 @@ This module https://github.com/thelia-modules/ShortCodeMeta is a good example of
  - `content` (string) The content between your tags it will be `My Content` for the example above.
  - `attributes` (array) The array of all attributes passed to your short code `['attribute'=>'value', 'foo'=>'bar']` for the example above.
  - `result` (string) Your short code will be replaced by this value in response (equal to content by default)
+
+## Tests
+
+The parser has no Thelia dependency, so its tests run without a kernel or a database:
+
+```
+vendor/bin/phpunit vendor/thelia/modules/ShortCode/Tests
+```
+
+## Third-party code
+
+`Parser/ShortcodeParser.php` and `Parser/ShortcodeRenderer.php` are derived from
+[maiorano84/shortcodes](https://github.com/maiorano84/shortcodes) v2.0.0-beta,
+Copyright (c) Matt Maiorano, released under the GNU General Public License version 2
+or later. The regular expressions they use come from WordPress, released under the
+same license. Both files carry that notice in their header.
