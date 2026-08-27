@@ -62,9 +62,13 @@ class ShortcodeRendererTest extends TestCase
         self::assertSame('P([]|)', $this->renderer()->render('[product]'));
     }
 
+    /**
+     * A shortcode with no enclosed content reports an empty string, never null.
+     */
     public function testRendersSelfClosingShortcode(): void
     {
-        self::assertSame('P([]|NULL)', $this->renderer()->render('[product /]'));
+        self::assertSame('P([]|)', $this->renderer()->render('[product /]'));
+        self::assertSame('P([]|)', $this->renderer()->render('[product/]'));
     }
 
     public function testRendersEnclosedContent(): void
