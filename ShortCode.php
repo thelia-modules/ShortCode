@@ -13,6 +13,7 @@
 namespace ShortCode;
 
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Propel;
 use Propel\Runtime\Exception\PropelException;
 use ShortCode\Model\ShortCodeQuery;
 use Thelia\Core\Install\Database;
@@ -23,14 +24,20 @@ class ShortCode extends BaseModule
     /** @var string */
     const DOMAIN_NAME = 'shortcode';
 
+    /**
+     * Create the tables on a fresh install.
+     *
+     * The install script starts with DROP TABLE, so it only runs when the tables are missing.
+     * The database is asked rather than an "is_initialized" flag in the module configuration:
+     * a shop whose tables were created another way, or whose configuration was lost, would
+     * otherwise have every short code wiped by a mere reactivation.
+     */
     public function preActivation(?ConnectionInterface $con = null): bool
     {
-        if (!$this->getConfigValue('is_initialized', false)) {
-            $database = new Database($con);
+        $con ??= Propel::getWriteConnection('TheliaMain');
 
-            $database->insertSql(null, array(__DIR__ . '/Config/TheliaMain.sql'));
-
-            $this->setConfigValue('is_initialized', true);
+        if (!$this->hasTable($con, 'short_code')) {
+            (new Database($con))->insertSql(null, [__DIR__.'/Config/TheliaMain.sql']);
         }
 
         return true;
@@ -85,5 +92,13 @@ class ShortCode extends BaseModule
             $shortCode->setActive(0)
                 ->save();
         }
+    }
+
+    private function hasTable(ConnectionInterface $con, string $table): bool
+    {
+        $statement = $con->prepare('SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table');
+        $statement->execute(['table' => $table]);
+
+        return (int) $statement->fetchColumn() > 0;
     }
 }
